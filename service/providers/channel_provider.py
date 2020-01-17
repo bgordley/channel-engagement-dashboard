@@ -1,10 +1,21 @@
 import datetime
-import math
 
 from service.db.db_base import DBBase
 from service.models.channel_metrics import ChannelMetrics
+from service.models.chat_mood import ChatMood
 from service.services.chat_service_base import ChatServiceBase
 from service.services.web_service_base import WebServiceBase
+
+
+def get_chat_mood(msg_per_minute):
+    if msg_per_minute <= 15:
+        return ChatMood.calm
+    elif msg_per_minute <= 30:
+        return ChatMood.chatty
+    elif msg_per_minute <= 60:
+        return ChatMood.engaged
+    elif msg_per_minute > 60:
+        return ChatMood.hyped
 
 
 class ChannelProvider(object):
@@ -27,21 +38,13 @@ class ChannelProvider(object):
         return channel
 
     def build_channel_metrics(self, channel_name):
+        source = self.web_service.get_source()
         as_of_time: datetime = datetime.datetime.now() - datetime.timedelta(minutes=1)
-        msg_per_min = self.db.read_chat_messages_as_of(channel_name, self.web_service.get_source(), as_of_time)
+        msg_per_min = self.db.count_chat_messages_as_of(channel_name, source, as_of_time)
 
         metrics: ChannelMetrics = ChannelMetrics()
-        metrics.mood = self.get_chat_mood(msg_per_min)
+        metrics.mood = get_chat_mood(msg_per_min)
         metrics.msg_per_min = msg_per_min
-        metrics.msg_per_sec = (msg_per_min / 60).round()
-        return metrics
+        metrics.msg_per_sec = (msg_per_min / 60).__round__(1)
 
-    def get_chat_mood(self, msg_per_minute):
-        if msg_per_minute <= 15:
-            return "Calm"
-        elif msg_per_minute <= 30:
-            return "Chatty"
-        elif msg_per_minute <= 60:
-            return "Engaged"
-        elif msg_per_minute > 60:
-            return "Hyped"
+        return metrics
