@@ -1,14 +1,20 @@
+import requests
+
+from service.errors.web_service_exception import WebServiceException
 from service.models.channel import Channel
 from service.models.stream import Stream
 from service.services.web_service_base import WebServiceBase
 
 
 class TwitchWebService(WebServiceBase):
+    def __init__(self, client_id):
+        self.client_id = client_id
+
     def get_source(self):
         return "Twitch"
 
     def get_auth_token(self):
-        pass
+        req = requests.get()
 
     def get_channel(self, channel_name):
         channel: Channel = Channel()
@@ -27,4 +33,10 @@ class TwitchWebService(WebServiceBase):
         return stream
 
     def get_game(self, game_id):
-        return "Placeholder game"
+        headers = {"Client-ID": self.client_id}
+        response = requests.get("https://api.twitch.tv/helix/games?id=%s" % game_id, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise WebServiceException(response.status_code, response.url)
