@@ -2,6 +2,9 @@ from datetime import datetime
 
 
 class DBBase(object):
+    def get_source(self):
+        raise NotImplementedError("Method implementation required.")
+
     def store_chat_messages(self, web_service_source, channel_id, chat_messages):
         raise NotImplementedError("Method implementation required.")
 

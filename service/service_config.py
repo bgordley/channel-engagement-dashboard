@@ -5,6 +5,7 @@ from pathlib import Path
 class ServiceConfig:
     flask = {}
     twitch = {}
+    db = {}
 
     def load_json_config(self, path):
         if not Path(path).is_file():
@@ -16,5 +17,6 @@ class ServiceConfig:
 
             self.flask = data["flask"]
             self.twitch = data["twitch"]
+            self.db = data["db"]
 
         return self

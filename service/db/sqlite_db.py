@@ -4,6 +4,9 @@ from service.db.db_base import DBBase
 
 
 class SQLiteDB(DBBase):
+    def get_source(self):
+        return "SQLite"
+
     def count_chat_messages_as_of(self, web_service_source, channel_id, timestamp: datetime):
         return 10
 

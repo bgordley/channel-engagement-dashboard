@@ -1,4 +1,6 @@
-class ChatMessage(object):
-    def __init__(self):
-        self.content = ""
-        self.timestamp = ""
+from service.models.model_base import ModelBase
+
+
+class ChatMessage(ModelBase):
+    content: str
+    timestamp: str

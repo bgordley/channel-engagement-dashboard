@@ -1,8 +1,8 @@
 from service.models.chat_mood import ChatMood
+from service.models.model_base import ModelBase
 
 
-class ChannelMetrics(object):
-    def __init__(self):
-        self.mood = ChatMood.calm
-        self.msg_per_sec = 0
-        self.msg_per_min = 0
+class ChannelMetrics(ModelBase):
+    mood: ChatMood
+    msg_per_sec: int
+    msg_per_min: int

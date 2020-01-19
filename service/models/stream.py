@@ -1,7 +1,9 @@
-class Stream(object):
-    def __init__(self):
-        self.id = ""
-        self.title = ""
-        self.game = ""
-        self.start_time = ""
-        self.viewer_count = 0
+from service.models.model_base import ModelBase
+
+
+class Stream(ModelBase):
+    id: str
+    title: str
+    game: str
+    start_time: str
+    viewer_count: int

@@ -1,7 +1,7 @@
 from service import app
-from service import web_service
+from service import channel_provider
 
 
 @app.route("/")
 def index():
-    return web_service.get_game(33214)
+    return channel_provider.get_channel("Twitch", "livibee").to_json()

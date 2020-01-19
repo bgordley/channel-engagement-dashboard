@@ -10,7 +10,7 @@ from service.services.twitch_web_service import TwitchWebService
 from service.services.web_service_base import WebServiceBase
 
 # Global vars
-config = ServiceConfig().load_json_config("config/config.json")
+config = ServiceConfig().load_json_config("config.json")
 twitch_client_id = config.twitch["client_id"]
 
 # Construct global dependencies
