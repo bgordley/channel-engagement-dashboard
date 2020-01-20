@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
+from service.config.service_config import ServiceConfig
 from service.db.db_base import DBBase
 from service.models.channel import Channel
 from service.models.channel_metrics import ChannelMetrics
@@ -48,19 +49,37 @@ class TestChannelProvider(TestCase):
         self.web_service_mock: WebServiceBase = WebServiceBase()
         self.chat_service_mock: ChatServiceBase = ChatServiceBase()
         self.db_mock: DBBase = DBBase()
+        self.config: ServiceConfig = ServiceConfig()
 
     def tearDown(self) -> None:
         pass
 
     def test_get_channel(self):
-        provider: ChannelProvider = ChannelProvider(self.web_service_mock, self.chat_service_mock, self.db_mock)
         expected_channel: Channel = build_test_channel()
 
         self.web_service_mock.get_channel = MagicMock(return_value=expected_channel)
         self.web_service_mock.get_stream = MagicMock(return_value=expected_channel.stream)
         self.web_service_mock.get_source = MagicMock(return_value=expected_channel.web_service_source)
+        self.chat_service_mock.get_source = MagicMock(return_value=expected_channel.web_service_source)
+        self.db_mock.get_source = MagicMock(return_value="SQLite")
         self.db_mock.count_chat_messages_as_of = MagicMock(return_value=expected_channel.metrics.msg_per_min)
 
-        actual_channel: Channel = provider.get_channel("TestChannel")
+        provider = ChannelProvider(self.config, self.web_service_mock, self.chat_service_mock,
+                                                    self.db_mock)
+
+        actual_channel: Channel = provider.get_channel("Test", "TestChannel")
 
         self.assertEqual(expected_channel, actual_channel)
+
+    def test_service_registration(self):
+        source = "Test".upper()
+        self.web_service_mock.get_source = MagicMock(return_value=source)
+        self.chat_service_mock.get_source = MagicMock(return_value=source)
+        self.db_mock.get_source = MagicMock(return_value=source)
+
+        provider = ChannelProvider(self.config, self.web_service_mock, self.chat_service_mock,
+                                   self.db_mock)
+
+        self.assertIsNotNone(provider.web_services[source])
+        self.assertIsNotNone(provider.chat_services[source])
+        self.assertIsNotNone(provider.dbs[source])

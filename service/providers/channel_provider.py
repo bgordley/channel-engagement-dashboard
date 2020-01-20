@@ -1,5 +1,6 @@
 import datetime
 
+from service.config.service_config import ServiceConfig
 from service.db.db_base import DBBase
 from service.errors.web_service_exception import WebServiceException
 from service.models.channel import Channel
@@ -25,13 +26,15 @@ def get_channel_key(source, channel_name):
 
 
 class ChannelProvider(object):
+    config: ServiceConfig
     web_services: dict
     chat_services: dict
     dbs: dict
     channel_cache: dict
     chat_cache: dict
 
-    def __init__(self, web_service: WebServiceBase, chat_service: ChatServiceBase, db: DBBase):
+    def __init__(self, config: ServiceConfig, web_service: WebServiceBase, chat_service: ChatServiceBase, db: DBBase):
+        self.config = config
         self.web_services = {}
         self.chat_services = {}
         self.dbs = {}
@@ -75,9 +78,9 @@ class ChannelProvider(object):
 
         return self.dbs[key]
 
-    def get_channel(self, source, channel_name):
-        key = get_channel_key(source, channel_name)
-        web_service: WebServiceBase = self.get_web_service(source)
+    def get_channel(self, web_source, channel_name):
+        key = get_channel_key(web_source, channel_name)
+        web_service: WebServiceBase = self.get_web_service(web_source)
 
         channel: Channel
 
@@ -93,18 +96,18 @@ class ChannelProvider(object):
         else:
             channel.is_streaming = True
 
-        channel.metrics = self.build_channel_metrics(source, channel_name)
+        channel.metrics = self.build_channel_metrics(web_source, channel_name)
 
         self.channel_cache[key] = channel
 
         return channel
 
-    def build_channel_metrics(self, source, channel_name):
-        db = self.get_db("SQLite")
+    def build_channel_metrics(self, web_source, channel_name):
+        db_source = self.config.db["source"]
+        db = self.get_db(db_source)
 
-        source = source
         as_of_time: datetime = datetime.datetime.now() - datetime.timedelta(minutes=1)
-        msg_per_min = db.count_chat_messages_as_of(channel_name, source, as_of_time)
+        msg_per_min = db.count_chat_messages_as_of(channel_name, web_source, as_of_time)
 
         metrics: ChannelMetrics = ChannelMetrics()
         metrics.mood = get_chat_mood(msg_per_min)

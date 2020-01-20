@@ -1,6 +1,9 @@
+import requests
+
+
 class WebServiceBase(object):
-    def get_auth_token(self):
-        raise NotImplementedError("Method implementation required.")
+    def __init__(self, _requests: requests):
+        self.requests = _requests
 
     def get_channel(self, channel_name):
         raise NotImplementedError("Method implementation required.")
