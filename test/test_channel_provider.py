@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 
 from service.config.service_config import ServiceConfig
 from service.db.db_base import DBBase
@@ -46,10 +46,10 @@ def build_test_channel():
 class TestChannelProvider(TestCase):
 
     def setUp(self) -> None:
-        self.web_service_mock: WebServiceBase = WebServiceBase()
-        self.chat_service_mock: ChatServiceBase = ChatServiceBase()
-        self.db_mock: DBBase = DBBase()
-        self.config: ServiceConfig = ServiceConfig()
+        self.config = ServiceConfig()
+        self.web_service_mock: WebServiceBase = Mock()
+        self.chat_service_mock: ChatServiceBase = Mock()
+        self.db_mock: DBBase = Mock()
 
     def tearDown(self) -> None:
         pass
@@ -61,11 +61,12 @@ class TestChannelProvider(TestCase):
         self.web_service_mock.get_stream = MagicMock(return_value=expected_channel.stream)
         self.web_service_mock.get_source = MagicMock(return_value=expected_channel.web_service_source)
         self.chat_service_mock.get_source = MagicMock(return_value=expected_channel.web_service_source)
+        self.chat_service_mock.st
         self.db_mock.get_source = MagicMock(return_value="SQLite")
         self.db_mock.count_chat_messages_as_of = MagicMock(return_value=expected_channel.metrics.msg_per_min)
 
         provider = ChannelProvider(self.config, self.web_service_mock, self.chat_service_mock,
-                                                    self.db_mock)
+                                   self.db_mock)
 
         actual_channel: Channel = provider.get_channel("Test", "TestChannel")
 

@@ -7,6 +7,9 @@ class DBBase(object):
     def __init__(self, config: ServiceConfig):
         self.config = config
 
+    def migrate(self):
+        raise NotImplementedError("Method implementation required.")
+
     def get_source(self):
         raise NotImplementedError("Method implementation required.")
 
