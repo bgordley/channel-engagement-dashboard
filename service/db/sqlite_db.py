@@ -9,7 +9,6 @@ from service.db.db_base import DBBase
 class SQLiteDB(DBBase):
     def __init__(self, config: ServiceConfig):
         super().__init__(config)
-        self.migrate_db()
 
     def get_source(self):
         return "SQLite"
@@ -17,7 +16,7 @@ class SQLiteDB(DBBase):
     def get_db_path(self):
         return self.config.db["path"]
 
-    def migrate_db(self):
+    def migrate(self):
         path = self.get_db_path()
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -29,18 +28,15 @@ class SQLiteDB(DBBase):
         conn.commit()
         conn.close()
 
-        print("Seeding completed for SQLite DB '%s'." % path)
+        print("Migration completed for SQLite DB '%s'." % path)
 
     def count_chat_messages_as_of(self, web_service_source, channel_name, timestamp: datetime):
         path = self.get_db_path()
 
-        sql = "SELECT * FROM messages WHERE web_service_source = '%s' AND channel_name = '%s' AND timestamp >= '%s'" % (
-            web_service_source, channel_name, timestamp)
-
-        print(sql)
-
         conn = sqlite3.connect(path)
-        result = conn.execute(sql)
+        result = conn.execute(
+            "SELECT * FROM messages WHERE web_service_source = '%s' AND channel_name = '%s' AND timestamp >= '%s'" % (
+                web_service_source, channel_name, timestamp))
         count = len(result.fetchall())
         conn.commit()
         conn.close()

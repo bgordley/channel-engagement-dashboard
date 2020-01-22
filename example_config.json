@@ -4,8 +4,7 @@
     "DEBUG": true
   },
   "twitch": {
-    "client_id": "TWITCH_CLIENT_ID_HERE",
-    "client_secret": "TWITCH_CLIENT_SECRET_HERE"
+    "client_id": "TWITCH_CLIENT_ID_HERE"
   },
   "db": {
     "source": "SQLite",

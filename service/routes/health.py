@@ -1,6 +1,11 @@
+from flask_restplus import Resource
+
 from service import app
 
+namespace = app.namespace('health', description='Health-check endpoints')
 
-@app.route("/health")
-def health():
-    return "Service is healthy."
+
+@namespace.route("/")
+class HealthCheckRoute(Resource):
+    def get(self):
+        return "Service is healthy."

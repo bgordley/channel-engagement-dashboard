@@ -82,6 +82,7 @@ class ChannelProvider(object):
     def get_channel(self, web_source, channel_name):
         key = get_channel_key(web_source, channel_name)
         web_service: WebServiceBase = self.get_web_service(web_source)
+        chat_service: ChatServiceBase = self.get_chat_service(web_source)
 
         channel: Channel
 
@@ -97,7 +98,9 @@ class ChannelProvider(object):
         else:
             channel.is_streaming = True
 
-        channel.metrics = self.build_channel_metrics(web_source, channel_name)
+        if channel.is_streaming:
+            chat_service.start_collecting_chat(channel_name)
+            channel.metrics = self.build_channel_metrics(web_source, channel_name)
 
         self.channel_cache[key] = channel
 
