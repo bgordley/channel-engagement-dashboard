@@ -36,8 +36,8 @@ The following are required to run this service
  - Pipenv
 
 ### Before you start
-Take a look at "example_config.json". You will need to create your own "config.json" file in the root directory.
-You will need to provide your own Twitch developer client id.
+Take a look at "example_config.json". You will need to create your own "config.json" file in the root directory 
+and will need to provide your own Twitch developer client id.
 
 ### Executing the service
 Execute the included run script from the root directory.
