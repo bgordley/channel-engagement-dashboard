@@ -8,7 +8,7 @@ Currently this is achieved through monitoring chat frequency to determine a chat
 
 ## Future Goals
  - Implement a GraphQL interface using [Graphene](https://graphene-python.org/)
- - Implement Twitch chat-bot to collect real chat metrics
+ - Implement IRC Twitch chat-bot to collect real chat metrics
  - Create Docker image and deploy to Kubernetes cluster
  - Integrate GitHub pipeline for CI/CD
  
