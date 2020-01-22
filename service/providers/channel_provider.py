@@ -2,6 +2,7 @@ import datetime
 
 from service.config.service_config import ServiceConfig
 from service.db.db_base import DBBase
+from service.errors.channel_provider_exception import ChannelProviderException
 from service.errors.web_service_exception import WebServiceException
 from service.models.channel import Channel
 from service.models.channel_metrics import ChannelMetrics
@@ -60,21 +61,21 @@ class ChannelProvider(object):
     def get_web_service(self, source):
         key = source.upper()
         if key not in self.web_services:
-            raise Exception("Web service '%s' has not been registered." % source)
+            raise ChannelProviderException.web_service_registration_failure(source)
 
         return self.web_services[key]
 
     def get_chat_service(self, source):
         key = source.upper()
         if key not in self.chat_services:
-            raise Exception("Chat service '%s' has not been registered." % source)
+            raise ChannelProviderException.chat_service_registration_failure(source)
 
         return self.chat_services[key]
 
     def get_db(self, source):
         key = source.upper()
         if key not in self.dbs:
-            raise Exception("DB '%s' has not been registered." % source)
+            raise ChannelProviderException.db_registration_failure(source)
 
         return self.dbs[key]
 
@@ -106,8 +107,8 @@ class ChannelProvider(object):
         db_source = self.config.db["source"]
         db = self.get_db(db_source)
 
-        as_of_time: datetime = datetime.datetime.now() - datetime.timedelta(minutes=1)
-        msg_per_min = db.count_chat_messages_as_of(channel_name, web_source, as_of_time)
+        as_of_time: datetime = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+        msg_per_min = db.count_chat_messages_as_of(web_source, channel_name, as_of_time)
 
         metrics: ChannelMetrics = ChannelMetrics()
         metrics.mood = get_chat_mood(msg_per_min)

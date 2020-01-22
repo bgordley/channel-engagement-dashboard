@@ -1,17 +1,65 @@
+import os
+import sqlite3
 from datetime import datetime
 
+from service.config.service_config import ServiceConfig
 from service.db.db_base import DBBase
 
 
 class SQLiteDB(DBBase):
+    def __init__(self, config: ServiceConfig):
+        super().__init__(config)
+        self.migrate_db()
+
     def get_source(self):
         return "SQLite"
 
-    def count_chat_messages_as_of(self, web_service_source, channel_id, timestamp: datetime):
-        return 100
+    def get_db_path(self):
+        return self.config.db["path"]
 
-    def store_chat_messages(self, web_service_source, channel_id, chat_messages):
-        pass
+    def migrate_db(self):
+        path = self.get_db_path()
 
-    def read_chat_messages(self, web_service_source, channel_id, max_count=10):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+        conn = sqlite3.connect(path)
+        conn.execute("DROP TABLE IF EXISTS messages")
+        conn.execute("CREATE TABLE IF NOT EXISTS messages "
+                     "(web_service_source text, channel_name text, content text, timestamp datetime)")
+        conn.commit()
+        conn.close()
+
+        print("Seeding completed for SQLite DB '%s'." % path)
+
+    def count_chat_messages_as_of(self, web_service_source, channel_name, timestamp: datetime):
+        path = self.get_db_path()
+
+        sql = "SELECT * FROM messages WHERE web_service_source = '%s' AND channel_name = '%s' AND timestamp >= '%s'" % (
+            web_service_source, channel_name, timestamp)
+
+        print(sql)
+
+        conn = sqlite3.connect(path)
+        result = conn.execute(sql)
+        count = len(result.fetchall())
+        conn.commit()
+        conn.close()
+
+        return count
+
+    def store_chat_messages(self, web_service_source, channel_name, chat_messages):
+        path = self.get_db_path()
+
+        conn = sqlite3.connect(path)
+
+        for message in chat_messages:
+            conn.execute("INSERT INTO messages VALUES ('%s', '%s', '%s', '%s');\n" % (
+                web_service_source, message.channel_name, message.content, message.timestamp))
+
+        conn.commit()
+        conn.close()
+
+        print("Inserted %s chat message(s) into SQLite DB '%s'." % (len(chat_messages), path))
+
+    def read_chat_messages(self, web_service_source, channel_name, max_count=10):
         pass

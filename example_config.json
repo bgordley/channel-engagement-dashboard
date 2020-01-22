@@ -8,6 +8,7 @@
     "client_secret": "TWITCH_CLIENT_SECRET_HERE"
   },
   "db": {
-    "source": "SQLite"
+    "source": "SQLite",
+    "path": "data/chat_messages.db"
   }
 }
