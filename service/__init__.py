@@ -8,6 +8,7 @@ from service.db.db_base import DBBase
 from service.db.sqlite_db import SQLiteDB
 from service.providers.channel_provider import ChannelProvider
 from service.services.chat_service_base import ChatServiceBase
+from service.services.mock_chat_service import MockChatService
 from service.services.twitch_chat_service import TwitchChatService
 from service.services.twitch_web_service import TwitchWebService
 from service.services.web_service_base import WebServiceBase
@@ -21,9 +22,10 @@ if path.isfile("config.json"):
 twitch_client_id = config.twitch["client_id"]
 
 # Construct global dependencies
-db: DBBase = SQLiteDB()
+db: DBBase = SQLiteDB(config)
 web_service: WebServiceBase = TwitchWebService(requests, config)
-chat_service: ChatServiceBase = TwitchChatService()
+chat_service: ChatServiceBase = MockChatService("Twitch", db)
+chat_service.start_collecting_chat("livibee")
 channel_provider: ChannelProvider = ChannelProvider(config, web_service, chat_service, db)
 
 app = Flask(__name__, instance_relative_config=True)

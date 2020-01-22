@@ -318,3 +318,6 @@ $RECYCLE.BIN/
 
 # Config contains sensitive data and should not be checked in
 config.json
+
+# Do not check in SQLite dbs
+data/
